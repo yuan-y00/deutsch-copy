@@ -1,0 +1,817 @@
+/* ============================================================================
+ * Deutsch Copy — 德语单词抄写工具 应用样式
+ * 基于 BR-Theme 主题变量，扩展应用特有组件
+ * ============================================================================ */
+
+/* --------------------------------------------------------------------------
+ * Layout — 页面整体布局
+ * -------------------------------------------------------------------------- */
+.br-theme .app-container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 16px 40px;
+}
+
+/* --------------------------------------------------------------------------
+ * Top Bar — 顶部固定进度区（sticky，紧凑）
+ * -------------------------------------------------------------------------- */
+.app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--br-bg-page);
+  padding: 8px 16px 6px;
+  border-bottom: 1px solid var(--br-border);
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* 第一行：等级徽章 + 进度文本 + 进度条 + 百分比 + 跳转按钮 */
+.app-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-level-badge {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--br-accent);
+  color: #fff;
+  letter-spacing: 0.5px;
+  font-family: var(--br-font-sans);
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.app-progress-text {
+  font-size: 11px;
+  color: var(--br-ink-muted);
+  white-space: nowrap;
+  min-width: 42px;
+  flex-shrink: 0;
+}
+
+.app-progress-bar {
+  flex: 1;
+  min-width: 40px;
+  height: 4px;
+  background: var(--br-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.app-progress-fill {
+  height: 100%;
+  background: var(--br-accent);
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.app-progress-pct {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--br-accent);
+  min-width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* 顶部跳转按钮 — 紧凑、accent 风格 */
+.app-jump-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--br-radius-sm);
+  background: var(--br-accent);
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: var(--br-font-sans);
+  letter-spacing: 0.3px;
+  transition: background 0.15s;
+}
+
+.app-jump-btn:hover {
+  background: var(--br-accent-light);
+}
+
+/* --------------------------------------------------------------------------
+ * Level Tabs — A1-C2 等级切换
+ * -------------------------------------------------------------------------- */
+.app-levels {
+  display: flex;
+  gap: 5px;
+  margin-top: 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.app-levels::-webkit-scrollbar {
+  display: none;
+}
+
+.app-level-btn {
+  flex: 1;
+  min-width: 38px;
+  padding: 4px 2px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  border: 1px solid var(--br-border);
+  border-radius: 6px;
+  background: var(--br-bg-card);
+  color: var(--br-ink-light);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--br-font-sans);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.app-level-btn:hover {
+  border-color: var(--br-accent-light);
+  color: var(--br-accent);
+}
+
+.app-level-btn.active {
+  background: var(--br-accent);
+  color: #fff;
+  border-color: var(--br-accent);
+}
+
+/* --------------------------------------------------------------------------
+ * Category Tags — 分类筛选（仅显示，不改变学习队列）
+ * -------------------------------------------------------------------------- */
+.app-categories {
+  display: flex;
+  gap: 5px;
+  margin-top: 5px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.app-categories::-webkit-scrollbar {
+  display: none;
+}
+
+.app-cat-tag {
+  font-size: 10.5px;
+  padding: 2px 9px;
+  border-radius: 20px;
+  background: var(--br-tag-bg);
+  color: var(--br-accent-light);
+  font-weight: 500;
+  border: 1px solid rgba(194, 81, 59, 0.12);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--br-font-sans);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.app-cat-tag:hover {
+  background: #fde8e0;
+}
+
+.app-cat-tag.active {
+  background: var(--br-accent);
+  color: #fff;
+  border-color: var(--br-accent);
+}
+
+/* --------------------------------------------------------------------------
+ * Word Card — 单词卡片
+ * -------------------------------------------------------------------------- */
+.app-word-card {
+  scroll-margin-top: 120px;
+  background: var(--br-bg-card);
+  border-radius: var(--br-radius);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--br-shadow);
+  border-left: 4px solid var(--br-accent-light);
+  transition: box-shadow 0.2s;
+}
+
+.app-word-card:first-child {
+  margin-top: 8px;
+}
+
+.app-word-card:hover {
+  box-shadow: var(--br-shadow-hover);
+}
+
+/* Card header: index + id + category tag */
+.app-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.app-card-index {
+  font-size: 11px;
+  color: var(--br-ink-muted);
+  letter-spacing: 0.5px;
+}
+
+/* Line 1: German word + Chinese meaning (same row) */
+.app-word-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.app-word-german {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--br-accent);
+  line-height: 1.2;
+}
+
+.app-word-chinese {
+  font-size: 15px;
+  color: var(--br-ink-light);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* Word play button — inline on the right of word row */
+.app-word-play-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 13px;
+  border-radius: 50%;
+  background: var(--br-bg-stripe);
+  border: 1px solid var(--br-border);
+  color: var(--br-ink-light);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.app-word-play-btn:hover {
+  border-color: var(--br-accent-light);
+  color: var(--br-accent);
+  background: #fef9f7;
+}
+
+/* Line 2: German example + inline play button */
+.app-example-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.app-example-de {
+  font-size: 14px;
+  color: var(--br-ink);
+  font-style: italic;
+  line-height: 1.5;
+  flex: 1;
+  min-width: 0;
+}
+
+.app-example-play-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 13px;
+  border-radius: 50%;
+  background: var(--br-bg-stripe);
+  border: 1px solid var(--br-border);
+  color: var(--br-ink-light);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  font-family: var(--br-font-sans);
+  line-height: 1;
+}
+
+.app-example-play-btn:hover {
+  border-color: var(--br-accent-light);
+  color: var(--br-accent);
+  background: #fef9f7;
+}
+
+/* Line 3: Chinese translation */
+.app-example-zh-row {
+  margin-bottom: 6px;
+}
+
+.app-example-zh {
+  font-size: 12.5px;
+  color: var(--br-ink-muted);
+  line-height: 1.5;
+}
+
+/* Word meta — 词性、复数等（small, muted） */
+.app-word-meta {
+  font-size: 10.5px;
+  color: var(--br-ink-muted);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+/* --------------------------------------------------------------------------
+ * Card Actions — 操作区：单词播放 + 输入框 + 抄写按钮 + Next 按钮
+ * -------------------------------------------------------------------------- */
+.app-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Audio buttons in action area */
+.app-audio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: var(--br-bg-stripe);
+  border: 1px solid var(--br-border);
+  color: var(--br-ink-light);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--br-font-sans);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.app-audio-btn:hover {
+  border-color: var(--br-accent-light);
+  color: var(--br-accent);
+  background: #fef9f7;
+}
+
+/* Audio playing state */
+.app-audio-btn.audio-active,
+.app-example-play-btn.audio-active,
+.app-word-play-btn.audio-active,
+.app-copy-btn.audio-active {
+  border-color: var(--br-accent);
+  color: var(--br-accent);
+  background: #fef5f2;
+  animation: audio-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes audio-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(194, 81, 59, 0.25); }
+  50%      { box-shadow: 0 0 0 6px rgba(194, 81, 59, 0); }
+}
+
+/* Copy input — single line, mobile-optimized */
+.app-copy-input {
+  flex: 1;
+  min-width: 100px;
+  padding: 7px 10px;
+  font-size: 14px;
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius-sm);
+  background: var(--br-bg-card);
+  color: var(--br-ink);
+  font-family: var(--br-font-sans);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.app-copy-input:focus {
+  border-color: var(--br-accent-light);
+  box-shadow: 0 0 0 3px rgba(194, 81, 59, 0.1);
+}
+
+.app-copy-input.completed {
+  border-color: var(--br-positive);
+  background: #f6f9f6;
+  color: var(--br-positive);
+}
+
+/* Copy button */
+.app-copy-btn {
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--br-radius-sm);
+  background: var(--br-accent);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: var(--br-font-sans);
+  letter-spacing: 0.3px;
+}
+
+.app-copy-btn:hover {
+  background: var(--br-accent-light);
+}
+
+/* Completed — only button changes color */
+.app-copy-btn.completed {
+  background: var(--br-positive);
+  color: #fff;
+}
+
+.app-copy-btn.completed:hover {
+  background: #4a7a5e;
+}
+
+/* Card flash — 跳转时的短暂高亮 */
+.app-word-card.flash {
+  animation: card-flash 0.7s ease;
+}
+
+@keyframes card-flash {
+  0%   { box-shadow: 0 0 0 0 rgba(194, 81, 59, 0.45); }
+  40%  { box-shadow: 0 0 0 12px rgba(194, 81, 59, 0.08); }
+  100% { box-shadow: var(--br-shadow); }
+}
+
+/* Copy error hint — 轻量内联提示 */
+.app-copy-hint {
+  display: none;
+  width: 100%;
+  font-size: 10.5px;
+  color: var(--br-negative);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.app-copy-hint.visible {
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+ * Action Bar — 底部操作栏（仅保留重置按钮）
+ * -------------------------------------------------------------------------- */
+.app-action-bar {
+  display: flex;
+  gap: 8px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.app-action-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius-sm);
+  background: var(--br-bg-card);
+  color: var(--br-ink);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  font-family: var(--br-font-sans);
+}
+
+.app-action-btn:hover {
+  border-color: var(--br-accent-light);
+  color: var(--br-accent);
+}
+
+/* --------------------------------------------------------------------------
+ * Empty State
+ * -------------------------------------------------------------------------- */
+.app-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--br-ink-muted);
+}
+
+.app-empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.3;
+}
+
+.app-empty h3 {
+  font-family: var(--br-font-serif);
+  font-size: 20px;
+  color: var(--br-ink);
+  margin-bottom: 6px;
+}
+
+/* --------------------------------------------------------------------------
+ * Modal — 庆祝弹窗
+ * -------------------------------------------------------------------------- */
+.app-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-modal-overlay.visible {
+  display: flex;
+}
+
+.app-modal {
+  background: var(--br-bg-card);
+  border-radius: var(--br-radius);
+  padding: 40px 32px;
+  text-align: center;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: var(--br-shadow-hover);
+}
+
+.app-modal h2 {
+  font-family: var(--br-font-serif);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--br-ink);
+  margin: 0 0 8px;
+  padding: 0;
+  border: none;
+}
+
+.app-modal p {
+  color: var(--br-ink-light);
+  margin-bottom: 20px;
+}
+
+.app-modal-btn {
+  padding: 10px 32px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--br-radius-sm);
+  background: var(--br-accent);
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--br-font-sans);
+}
+
+.app-modal-btn:hover {
+  background: var(--br-accent-light);
+}
+
+/* --------------------------------------------------------------------------
+ * Certificate — 证书区（预留）
+ * -------------------------------------------------------------------------- */
+.app-certificate {
+  display: none;
+  background: var(--br-bg-card);
+  border-radius: var(--br-radius);
+  padding: 40px 32px;
+  margin: 30px 0;
+  text-align: center;
+  box-shadow: var(--br-shadow);
+  border: 2px solid var(--br-accent-light);
+}
+
+.app-certificate.visible {
+  display: block;
+}
+
+.app-certificate h2 {
+  font-family: var(--br-font-serif);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--br-accent);
+  margin: 0 0 8px;
+  padding: 0;
+  border: none;
+}
+
+/* Certificate download buttons */
+.cert-download-btn {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--br-radius-sm);
+  background: var(--br-accent);
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--br-font-sans);
+  transition: background 0.15s;
+}
+
+.cert-download-btn:hover {
+  background: var(--br-accent-light);
+}
+
+.cert-download-btn.secondary {
+  background: var(--br-bg-card);
+  color: var(--br-ink);
+  border: 1px solid var(--br-border);
+}
+
+.cert-download-btn.secondary:hover {
+  border-color: var(--br-accent-light);
+  color: var(--br-accent);
+}
+
+/* --------------------------------------------------------------------------
+ * Print — 打印证书时只显示证书区域
+ * -------------------------------------------------------------------------- */
+@media print {
+  .app-topbar,
+  .app-container > *:not(#certificate-area),
+  .app-modal-overlay,
+  #word-cards,
+  .app-action-bar {
+    display: none !important;
+  }
+
+  .app-certificate {
+    display: block !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 20px 0 !important;
+    margin: 0 !important;
+  }
+
+  .cert-download-btn {
+    display: none !important;
+  }
+
+  body.br-theme {
+    background: #fff !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * Responsive
+ * -------------------------------------------------------------------------- */
+@media (max-width: 500px) {
+  .app-topbar {
+    padding: 6px 10px 5px;
+  }
+
+  .app-progress-row {
+    gap: 5px;
+  }
+
+  .app-level-badge {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .app-progress-text {
+    font-size: 10px;
+    min-width: 36px;
+  }
+
+  .app-progress-pct {
+    font-size: 10px;
+    min-width: 26px;
+  }
+
+  .app-jump-btn {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .app-level-btn {
+    font-size: 10px;
+    padding: 3px 2px;
+    min-width: 32px;
+  }
+
+  .app-levels {
+    gap: 4px;
+    margin-top: 5px;
+  }
+
+  .app-categories {
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .app-cat-tag {
+    font-size: 10px;
+    padding: 2px 7px;
+  }
+
+  .app-word-card {
+    scroll-margin-top: 100px;
+    padding: 12px 12px;
+  }
+
+  .app-word-german {
+    font-size: 20px;
+  }
+
+  .app-word-chinese {
+    font-size: 13px;
+  }
+
+  .app-example-de {
+    font-size: 13px;
+  }
+
+  .app-card-actions {
+    gap: 4px;
+  }
+
+  .app-copy-input {
+    min-width: 80px;
+    font-size: 16px;  /* iOS: 16px+ prevents auto-zoom */
+  }
+
+  .app-copy-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .app-action-bar {
+    flex-direction: column;
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * PWA 安装帮助面板
+ * -------------------------------------------------------------------------- */
+.app-pwa-help-btn {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.app-pwa-help {
+  display: none;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 16px 16px;
+}
+
+.app-pwa-help.visible {
+  display: block;
+}
+
+.app-pwa-help-inner {
+  background: var(--br-bg-card);
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius);
+  padding: 16px 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--br-ink);
+}
+
+.app-pwa-help-inner h4 {
+  font-family: var(--br-font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: var(--br-accent);
+}
+
+.app-pwa-help-inner p {
+  margin: 10px 0 4px;
+  font-weight: 600;
+}
+
+.app-pwa-help-inner ol {
+  margin: 4px 0 12px;
+  padding-left: 20px;
+}
+
+.app-pwa-help-inner ol li {
+  margin-bottom: 2px;
+}
+
+.app-pwa-help-note {
+  font-size: 11px !important;
+  color: var(--br-ink-muted) !important;
+  margin-top: 10px !important;
+  font-weight: 400 !important;
+}

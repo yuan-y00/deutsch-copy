@@ -1,0 +1,18 @@
+{
+  "checkedBatch": "01",
+  "checkedLevel": "A1",
+  "checkedAt": "2026-05-26T12:05:04.729Z",
+  "partial": false,
+  "checkedRange": null,
+  "expectedWordFiles": 325,
+  "expectedExampleFiles": 325,
+  "expectedTotalGermanFiles": 650,
+  "existingWordFiles": 325,
+  "existingExampleFiles": 325,
+  "existingTotalGermanFiles": 650,
+  "missingFiles": [],
+  "zeroByteFiles": [],
+  "outdatedFiles": [],
+  "unexpectedChineseFiles": [],
+  "pass": true
+}

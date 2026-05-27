@@ -1,0 +1,17 @@
+{
+  "name": "deutsch-copy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "德语单词抄写工具 — Deutsch Copy",
+  "scripts": {
+    "audio:generate": "node scripts/generate-audio-batch01.mjs",
+    "audio:validate": "node scripts/validate-audio-batch.mjs 01",
+    "audio:report": "node scripts/validate-audio-batch.mjs 01 --report"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@google-cloud/text-to-speech": "^6.4.1"
+  }
+}

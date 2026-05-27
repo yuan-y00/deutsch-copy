@@ -1,0 +1,29 @@
+{
+  "batch": "02",
+  "level": "A1",
+  "provider": "piper",
+  "modelName": "de_DE-thorsten-high",
+  "partial": false,
+  "checkedRange": null,
+  "cardCount": 325,
+  "expectedWordAudioCount": 325,
+  "expectedExampleAudioCount": 325,
+  "expectedTotalGermanAudioCount": 650,
+  "generatedWordAudioCount": 325,
+  "generatedExampleAudioCount": 325,
+  "generatedTotalGermanAudioCount": 650,
+  "skippedTaskCount": 0,
+  "failedTaskCount": 0,
+  "dryRunTaskCount": 0,
+  "missingFileCount": 0,
+  "zeroByteFileCount": 0,
+  "generatedChineseAudio": false,
+  "calledChineseTTS": false,
+  "outputDirectories": [
+    "audio/de/words/",
+    "audio/de/examples/"
+  ],
+  "failedItems": [],
+  "missingItems": [],
+  "createdAt": "2026-05-27T03:27:17.895Z"
+}

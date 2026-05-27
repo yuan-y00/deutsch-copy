@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Deutsch Copy">
+<meta name="theme-color" content="#C2513B">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<title>德语单词抄写 — Deutsch Copy</title>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet">
+
+<!-- BR-Theme -->
+<link rel="stylesheet" href="theme/brand-research-theme.css">
+<!-- App Styles -->
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body class="br-theme">
+
+<!-- ====================================================================== -->
+<!-- 顶部固定进度区 -->
+<!-- ====================================================================== -->
+<header class="app-topbar" id="app-topbar">
+  <!-- 第一行：等级 + 进度条 + 百分比 -->
+  <div class="app-progress-row">
+    <span class="app-level-badge" id="level-badge">A1</span>
+    <span class="app-progress-text" id="progress-text">0/0</span>
+    <div class="app-progress-bar">
+      <div class="app-progress-fill" id="progress-fill" style="width: 0%;"></div>
+    </div>
+    <span class="app-progress-pct" id="progress-pct">0%</span>
+    <button class="app-jump-btn" id="btn-jump-top" title="跳到第一个未抄单词">▶ 下一个</button>
+  </div>
+
+  <!-- 第二行：等级切换 A1–C2 -->
+  <nav class="app-levels" id="level-tabs">
+    <!-- JS 动态渲染 -->
+  </nav>
+
+  <!-- 第三行：分类标签 -->
+  <div class="app-categories" id="category-tags">
+    <!-- JS 动态渲染 -->
+  </div>
+</header>
+
+<!-- ====================================================================== -->
+<!-- 主内容区 -->
+<!-- ====================================================================== -->
+<main class="app-container">
+
+  <!-- 单词卡片列表 -->
+  <section id="word-cards">
+    <!-- JS 动态渲染 -->
+  </section>
+
+  <!-- 底部操作栏 -->
+  <div class="app-action-bar">
+    <button class="app-action-btn" id="btn-reset-level">重置当前等级</button>
+    <button class="app-action-btn" id="btn-reset-all">重置全部进度</button>
+    <button class="app-action-btn app-pwa-help-btn" id="btn-pwa-help">手机使用说明</button>
+  </div>
+
+  <!-- 手机 PWA 安装说明（默认隐藏） -->
+  <div class="app-pwa-help" id="pwa-help-panel">
+    <div class="app-pwa-help-inner">
+      <h4>如何添加到手机主屏幕</h4>
+      <p><strong>iPhone / iPad：</strong></p>
+      <ol>
+        <li>用 <strong>Safari</strong> 打开本页面。</li>
+        <li>点击底部中间 <strong>分享按钮</strong>（↑）。</li>
+        <li>选择 <strong>「添加到主屏幕」</strong>。</li>
+        <li>点击右上角「添加」即可。</li>
+      </ol>
+      <p><strong>Android：</strong></p>
+      <ol>
+        <li>用 <strong>Chrome</strong> 打开本页面。</li>
+        <li>点击右上角 <strong>菜单（⋮）</strong>。</li>
+        <li>选择 <strong>「添加到主屏幕」</strong>或<strong>「安装应用」</strong>。</li>
+      </ol>
+      <p class="app-pwa-help-note">提示：PWA 安装功能需要 HTTPS 环境才能完整使用，本地局域网 HTTP 下部分浏览器可能不支持。</p>
+      <button class="app-action-btn" id="btn-pwa-help-close">关闭</button>
+    </div>
+  </div>
+
+  <!-- 证书区 -->
+  <div class="app-certificate" id="certificate-area"></div>
+
+</main>
+
+<!-- ====================================================================== -->
+<!-- 庆祝弹窗 -->
+<!-- ====================================================================== -->
+<div class="app-modal-overlay" id="celebration-modal">
+  <div class="app-modal">
+    <h2 id="modal-title">🎉 太棒了！</h2>
+    <p id="modal-text">你已经完成了当前等级的所有德语单词抄写！</p>
+    <button class="app-modal-btn" id="modal-close-btn">继续抄写</button>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- JavaScript -->
+<!-- ====================================================================== -->
+<script src="js/data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/certificates.js"></script>
+<script src="js/validate.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>

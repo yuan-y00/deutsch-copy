@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 01 批 A1 德语音频听审</title>
+<style>
+  :root {
+    --bg: #faf9f7;
+    --card-bg: #fff;
+    --border: #e0ddd8;
+    --text: #2c2c2c;
+    --text-muted: #8c8c8c;
+    --accent: #c2513b;
+    --positive: #3b7d3b;
+    --negative: #c23b3b;
+    --warning: #c2953b;
+    --neutral: #607d8b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+  .topbar {
+    position: sticky; top: 0; z-index: 10; background: var(--bg);
+    border-bottom: 1px solid var(--border); padding: 12px 20px;
+  }
+  .topbar h1 { font-size: 18px; margin-bottom: 8px; }
+  .topbar .stats { font-size: 12px; color: var(--text-muted); display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  .topbar .stats span { white-space: nowrap; }
+  .topbar .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+  .topbar .filters button {
+    padding: 4px 12px; border: 1px solid var(--border); border-radius: 14px;
+    background: var(--card-bg); cursor: pointer; font-size: 12px; color: var(--text);
+  }
+  .topbar .filters button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .topbar .actions { margin-top: 8px; display: flex; gap: 8px; }
+  .topbar .actions button {
+    padding: 4px 14px; border: 1px solid var(--border); border-radius: 4px;
+    background: var(--card-bg); cursor: pointer; font-size: 12px;
+  }
+  .topbar .actions button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .cards { max-width: 960px; margin: 0 auto; padding: 16px 20px; }
+  .card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 16px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start;
+  }
+  .card .idx { font-size: 12px; color: var(--text-muted); min-width: 55px; padding-top: 2px; }
+  .card .info { flex: 1; min-width: 0; }
+  .card .info .de { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+  .card .info .zh { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+  .card .info .example { font-size: 13px; color: var(--text); margin-bottom: 2px; }
+  .card .info .example-label { font-size: 11px; color: var(--text-muted); }
+  .card .plays { display: flex; flex-direction: column; gap: 4px; min-width: 70px; }
+  .card .plays button {
+    padding: 4px 8px; font-size: 11px; border: 1px solid var(--border); border-radius: 4px;
+    background: var(--card-bg); cursor: pointer; white-space: nowrap;
+  }
+  .card .plays button:hover { background: #f0ece8; }
+  .card .review { display: flex; flex-direction: column; gap: 4px; min-width: 130px; }
+  .card .review .row-label { font-size: 10px; color: var(--text-muted); }
+  .card .review .btns { display: flex; gap: 3px; flex-wrap: wrap; }
+  .card .review .btns button {
+    padding: 2px 6px; font-size: 10px; border: 1px solid var(--border); border-radius: 3px;
+    background: var(--card-bg); cursor: pointer;
+  }
+  .card .review .btns button.pass { border-color: var(--positive); color: var(--positive); }
+  .card .review .btns button.fix { border-color: var(--negative); color: var(--negative); }
+  .card .review .btns button.unnatural { border-color: var(--warning); color: var(--warning); }
+  .card .review .btns button.error { border-color: var(--negative); color: var(--negative); background: #fff0f0; }
+  .card .review .btns button.active { color: #fff !important; }
+  .card .review .btns button.pass.active { background: var(--positive); }
+  .card .review .btns button.fix.active { background: var(--negative); }
+  .card .review .btns button.unnatural.active { background: var(--warning); }
+  .card .review .btns button.error.active { background: var(--negative); }
+  .card .note-input { width: 100%; font-size: 11px; padding: 2px 4px; border: 1px solid var(--border); border-radius: 3px; margin-top: 2px; }
+  .card.status-passed { border-left: 3px solid var(--positive); }
+  .card.status-needsfix { border-left: 3px solid var(--negative); }
+  .card.status-mixed { border-left: 3px solid var(--warning); }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 640px) {
+    .card { flex-wrap: wrap; }
+    .card .plays { flex-direction: row; }
+    .card .review { min-width: 100%; flex-direction: row; gap: 8px; align-items: center; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>第 01 批 A1 德语音频听审 — DE-0001 至 DE-0325</h1>
+  <div class="stats">
+    <span>总计: <strong id="stat-total">325</strong></span>
+    <span>未检查: <strong id="stat-unchecked">325</strong></span>
+    <span>已通过: <strong id="stat-passed" style="color:var(--positive)">0</strong></span>
+    <span>需修正: <strong id="stat-fix" style="color:var(--negative)">0</strong></span>
+    <span>不自然: <strong id="stat-unnatural" style="color:var(--warning)">0</strong></span>
+    <span>文件错误: <strong id="stat-error" style="color:var(--negative)">0</strong></span>
+  </div>
+  <div class="filters">
+    <button data-filter="all" class="active">全部</button>
+    <button data-filter="unchecked">未检查</button>
+    <button data-filter="needsfix">需修正</button>
+    <button data-filter="passed">已通过</button>
+    <button data-filter="unnatural">不自然</button>
+    <button data-filter="error">文件错误</button>
+  </div>
+  <div class="actions">
+    <button onclick="exportResults()">导出结果 JSON</button>
+    <button onclick="resetAll()">重置全部</button>
+    <button class="primary" onclick="scrollToFirstUnchecked()">跳到第一个未检查</button>
+  </div>
+</div>
+
+<div class="cards" id="cards-container">
+  <!-- JS 动态渲染 -->
+</div>
+
+<script>
+// ============================================================================
+// 加载数据
+// ============================================================================
+const REVIEW_KEY = 'audio-review-batch-01';
+
+function loadReviewData() {
+  try {
+    const raw = localStorage.getItem(REVIEW_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return null;
+}
+
+function saveReviewData(data) {
+  localStorage.setItem(REVIEW_KEY, JSON.stringify(data));
+}
+
+function loadCardsFromDataJs() {
+  // 从 data.js 解析卡片信息（通过脚本标签加载）
+  // WORD_BANK 已在页面加载时可用
+  if (typeof WORD_BANK === 'undefined') {
+    document.getElementById('cards-container').innerHTML =
+      '<p style="padding:40px;text-align:center;color:var(--negative)">无法加载词包数据。请确保 js/data.js 已正确加载。</p>';
+    return [];
+  }
+  const all = [];
+  Object.values(WORD_BANK).forEach(arr => all.push(...arr));
+  return all.filter(c => c.batch === '01' && c.level === 'A1')
+    .sort((a, b) => a.globalOrder - b.globalOrder);
+}
+
+// ============================================================================
+// 初始化 review 数据
+// ============================================================================
+function initReviewData(cards) {
+  let existing = loadReviewData();
+  const existingMap = new Map();
+  if (existing) {
+    existing.forEach(r => existingMap.set(r.cardId, r));
+  }
+
+  return cards.map(c => {
+    const prev = existingMap.get(c.id);
+    if (prev) return prev;
+    return {
+      cardId: c.id,
+      wordReviewStatus: 'unchecked',
+      exampleReviewStatus: 'unchecked',
+      note: '',
+      reviewedAt: null,
+    };
+  });
+}
+
+// ============================================================================
+// App State
+// ============================================================================
+let cards = [];
+let reviewData = [];
+let currentFilter = 'all';
+
+// ============================================================================
+// 渲染
+// ============================================================================
+function getCardStatus(rd) {
+  const ws = rd.wordReviewStatus;
+  const es = rd.exampleReviewStatus;
+  if (ws === 'passed' && es === 'passed') return 'passed';
+  if (ws === 'error' || es === 'error') return 'error';
+  if (ws === 'needsReview' || es === 'needsReview') return 'needsfix';
+  if (ws === 'unnatural' || es === 'unnatural') return 'unnatural';
+  if (ws === 'unchecked' && es === 'unchecked') return 'unchecked';
+  // mixed states
+  if (ws === 'passed' && es !== 'passed' && es !== 'unchecked') return 'needsfix';
+  if (es === 'passed' && ws !== 'passed' && ws !== 'unchecked') return 'needsfix';
+  return 'unchecked';
+}
+
+function render() {
+  const container = document.getElementById('cards-container');
+  const filtered = cards.filter(c => {
+    const rd = reviewData.find(r => r.cardId === c.id);
+    if (!rd) return true;
+    const status = getCardStatus(rd);
+    if (currentFilter === 'all') return true;
+    if (currentFilter === 'needsfix') return status === 'needsfix';
+    return status === currentFilter;
+  });
+
+  container.innerHTML = filtered.map(c => {
+    const rd = reviewData.find(r => r.cardId === c.id) || {
+      cardId: c.id, wordReviewStatus: 'unchecked', exampleReviewStatus: 'unchecked', note: ''
+    };
+    const cardStatus = getCardStatus(rd);
+
+    return `
+    <div class="card status-${cardStatus}" data-card-id="${c.id}">
+      <div class="idx">#${c.globalOrder}<br>${c.id}</div>
+      <div class="info">
+        <div class="de">${esc(c.wordDisplay)} <span style="font-size:11px;color:var(--text-muted)">${esc(c.shortMeaningZh)}</span></div>
+        <div class="example-label">例句:</div>
+        <div class="example">${esc(c.exampleDe)}</div>
+        <div class="zh" style="margin-top:2px">${esc(c.exampleZh)}</div>
+      </div>
+      <div class="plays">
+        <button onclick="playWordAudio('${c.id}')">🔊 单词</button>
+        <button onclick="playExampleAudio('${c.id}')">🔊 例句</button>
+      </div>
+      <div class="review">
+        <div>
+          <div class="row-label">单词发音</div>
+          <div class="btns">
+            <button class="pass${rd.wordReviewStatus==='passed'?' active':''}" onclick="setWordStatus('${c.id}','passed')">通过</button>
+            <button class="fix${rd.wordReviewStatus==='needsReview'?' active':''}" onclick="setWordStatus('${c.id}','needsReview')">需修正</button>
+            <button class="unnatural${rd.wordReviewStatus==='unnatural'?' active':''}" onclick="setWordStatus('${c.id}','unnatural')">不自然</button>
+            <button class="error${rd.wordReviewStatus==='error'?' active':''}" onclick="setWordStatus('${c.id}','error')">文件错误</button>
+          </div>
+        </div>
+        <div>
+          <div class="row-label">例句发音</div>
+          <div class="btns">
+            <button class="pass${rd.exampleReviewStatus==='passed'?' active':''}" onclick="setExampleStatus('${c.id}','passed')">通过</button>
+            <button class="fix${rd.exampleReviewStatus==='needsReview'?' active':''}" onclick="setExampleStatus('${c.id}','needsReview')">需修正</button>
+            <button class="unnatural${rd.exampleReviewStatus==='unnatural'?' active':''}" onclick="setExampleStatus('${c.id}','unnatural')">不自然</button>
+            <button class="error${rd.exampleReviewStatus==='error'?' active':''}" onclick="setExampleStatus('${c.id}','error')">文件错误</button>
+          </div>
+        </div>
+        <input class="note-input" placeholder="备注..." value="${esc(rd.note||'')}"
+          onchange="setNote('${c.id}', this.value)">
+      </div>
+    </div>`;
+  }).join('');
+
+  updateStats();
+}
+
+function esc(s) {
+  if (!s) return '';
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+function updateStats() {
+  let unchecked = 0, passed = 0, fix = 0, unnatural = 0, error = 0;
+  reviewData.forEach(rd => {
+    const s = getCardStatus(rd);
+    if (s === 'unchecked') unchecked++;
+    else if (s === 'passed') passed++;
+    else if (s === 'needsfix') fix++;
+    else if (s === 'unnatural') unnatural++;
+    else if (s === 'error') error++;
+  });
+
+  document.getElementById('stat-total').textContent = cards.length;
+  document.getElementById('stat-unchecked').textContent = unchecked;
+  document.getElementById('stat-passed').textContent = passed;
+  document.getElementById('stat-fix').textContent = fix;
+  document.getElementById('stat-unnatural').textContent = unnatural;
+  document.getElementById('stat-error').textContent = error;
+}
+
+// ============================================================================
+// 音频播放
+// ============================================================================
+let currentAudio = null;
+
+function playWordAudio(cardId) {
+  stopAudio();
+  const card = cards.find(c => c.id === cardId);
+  if (!card) return;
+  const url = card.wordAudioUrl;
+  const audio = new Audio(url);
+  audio.onerror = () => {
+    // Fallback to TTS
+    const u = new SpeechSynthesisUtterance(card.wordAudioText);
+    u.lang = 'de-DE';
+    u.rate = 0.85;
+    speechSynthesis.speak(u);
+    currentAudio = { type: 'tts', utterance: u };
+  };
+  audio.play().catch(() => {
+    const u = new SpeechSynthesisUtterance(card.wordAudioText);
+    u.lang = 'de-DE';
+    u.rate = 0.85;
+    speechSynthesis.speak(u);
+    currentAudio = { type: 'tts', utterance: u };
+  });
+  currentAudio = { type: 'file', audio };
+}
+
+function playExampleAudio(cardId) {
+  stopAudio();
+  const card = cards.find(c => c.id === cardId);
+  if (!card) return;
+  const url = card.exampleAudioUrl;
+  const audio = new Audio(url);
+  audio.onerror = () => {
+    const u = new SpeechSynthesisUtterance(card.exampleAudioText);
+    u.lang = 'de-DE';
+    u.rate = 0.85;
+    speechSynthesis.speak(u);
+    currentAudio = { type: 'tts', utterance: u };
+  };
+  audio.play().catch(() => {
+    const u = new SpeechSynthesisUtterance(card.exampleAudioText);
+    u.lang = 'de-DE';
+    u.rate = 0.85;
+    speechSynthesis.speak(u);
+    currentAudio = { type: 'tts', utterance: u };
+  });
+  currentAudio = { type: 'file', audio };
+}
+
+function stopAudio() {
+  if (currentAudio) {
+    if (currentAudio.type === 'file' && currentAudio.audio) {
+      currentAudio.audio.pause();
+      currentAudio.audio.currentTime = 0;
+    }
+    if (currentAudio.utterance) {
+      speechSynthesis.cancel();
+    }
+    currentAudio = null;
+  }
+}
+
+// ============================================================================
+// Review actions
+// ============================================================================
+function setWordStatus(cardId, status) {
+  let rd = reviewData.find(r => r.cardId === cardId);
+  if (!rd) {
+    rd = { cardId, wordReviewStatus: 'unchecked', exampleReviewStatus: 'unchecked', note: '', reviewedAt: null };
+    reviewData.push(rd);
+  }
+  rd.wordReviewStatus = status;
+  rd.reviewedAt = new Date().toISOString();
+  saveReviewData(reviewData);
+  render();
+}
+
+function setExampleStatus(cardId, status) {
+  let rd = reviewData.find(r => r.cardId === cardId);
+  if (!rd) {
+    rd = { cardId, wordReviewStatus: 'unchecked', exampleReviewStatus: 'unchecked', note: '', reviewedAt: null };
+    reviewData.push(rd);
+  }
+  rd.exampleReviewStatus = status;
+  rd.reviewedAt = new Date().toISOString();
+  saveReviewData(reviewData);
+  render();
+}
+
+function setNote(cardId, note) {
+  let rd = reviewData.find(r => r.cardId === cardId);
+  if (!rd) {
+    rd = { cardId, wordReviewStatus: 'unchecked', exampleReviewStatus: 'unchecked', note: '', reviewedAt: null };
+    reviewData.push(rd);
+  }
+  rd.note = note;
+  saveReviewData(reviewData);
+}
+
+// ============================================================================
+// Filter
+// ============================================================================
+document.querySelector('.filters').addEventListener('click', e => {
+  if (e.target.tagName === 'BUTTON') {
+    document.querySelectorAll('.filters button').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    currentFilter = e.target.dataset.filter;
+    render();
+  }
+});
+
+// ============================================================================
+// Export / Reset
+// ============================================================================
+function exportResults() {
+  const data = JSON.stringify(reviewData, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'pronunciation-review-batch-01.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function resetAll() {
+  if (!confirm('确定要重置所有听审状态吗？此操作不可恢复。')) return;
+  reviewData = cards.map(c => ({
+    cardId: c.id,
+    wordReviewStatus: 'unchecked',
+    exampleReviewStatus: 'unchecked',
+    note: '',
+    reviewedAt: null,
+  }));
+  saveReviewData(reviewData);
+  render();
+}
+
+function scrollToFirstUnchecked() {
+  currentFilter = 'unchecked';
+  document.querySelectorAll('.filters button').forEach(b => b.classList.remove('active'));
+  const uncheckedBtn = document.querySelector('[data-filter="unchecked"]');
+  if (uncheckedBtn) uncheckedBtn.classList.add('active');
+  render();
+  setTimeout(() => {
+    const first = document.querySelector('.card');
+    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+
+// ============================================================================
+// Init
+// ============================================================================
+function init() {
+  cards = loadCardsFromDataJs();
+  if (cards.length === 0) return;
+  reviewData = initReviewData(cards);
+  saveReviewData(reviewData);
+  render();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<!-- Load data.js -->
+<script src="../js/data.js"></script>
+</body>
+</html>

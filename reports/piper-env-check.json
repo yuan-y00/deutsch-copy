@@ -1,0 +1,34 @@
+{
+  "checkedAt": "2026-05-26T00:00:00.000+08:00",
+  "os": "Windows",
+  "nodeAvailable": true,
+  "npmAvailable": true,
+  "ffmpegAvailable": false,
+  "ffmpegVersion": "",
+  "piperExePath": "D:\\Yuan\\tts\\piper\\piper.exe",
+  "piperExists": false,
+  "piperRunnable": false,
+  "piperVersionOrHelpResult": "",
+  "modelPath": "D:\\Yuan\\tts\\models\\de_DE-thorsten-high.onnx",
+  "modelExists": false,
+  "modelFileSizeBytes": 0,
+  "configPath": "D:\\Yuan\\tts\\models\\de_DE-thorsten-high.onnx.json",
+  "configExists": false,
+  "configFileSizeBytes": 0,
+  "setupComplete": false,
+  "warnings": [
+    "ffmpeg 不可用 — 运行 setup-piper-env.ps1 时将尝试 winget 安装",
+    "piper.exe 不存在 — 需要从 GitHub Piper releases 手动下载",
+    "德语模型 de_DE-thorsten-high.onnx 不存在 — 运行脚本时将尝试从 Hugging Face 下载",
+    "模型配置 de_DE-thorsten-high.onnx.json 不存在 — 运行脚本时将尝试从 Hugging Face 下载"
+  ],
+  "errors": [],
+  "nextCommands": [
+    "cd /d D:\\Yuan\\deutsch-copy",
+    "Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass",
+    ".\\scripts\\setup-piper-env.ps1",
+    ". .\\scripts\\piper-env.example.ps1",
+    "ffmpeg -version",
+    "node scripts/test-piper-one.mjs"
+  ]
+}

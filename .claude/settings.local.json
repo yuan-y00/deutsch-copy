@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(export TTS_PROVIDER=piper)",
+      "Bash(export PIPER_EXE=\"D:/Yuan/tts/piper/piper/piper.exe\")",
+      "Bash(export PIPER_MODEL=\"D:/Yuan/tts/models/de_DE-thorsten-high.onnx\")",
+      "Bash(export PIPER_CONFIG=\"D:/Yuan/tts/models/de_DE-thorsten-high.onnx.json\")",
+      "Bash(export FFMPEG_EXE=\"ffmpeg\")"
+    ]
+  }
+}

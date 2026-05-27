@@ -1,0 +1,908 @@
+/*
+ * Brand Research Theme (BR-Theme) v1.0
+ * ============================================================================
+ * 可复用的品牌调研报告视觉主题。
+ *
+ * 使用方式：
+ *   1. 复制 brand-research-theme.css 到你的项目中
+ *   2. <link rel="stylesheet" href="./theme/brand-research-theme.css">
+ *   3. <body class="br-theme">
+ *
+ * 推荐字体（在 <head> 中导入以获得最佳效果）：
+ *   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@600;700;900&display=swap');
+ *
+ * 所有 class 均以 br- 前缀命名，避免与宿主项目冲突。
+ * 所有样式 scoped 在 .br-theme 下（全局 reset 除外）。
+ * ============================================================================
+ */
+
+/* --------------------------------------------------------------------------
+ * CSS Custom Properties（可在 :root 或 .br-theme 中覆盖）
+ * -------------------------------------------------------------------------- */
+.br-theme {
+  /* 配色 */
+  --br-bg-page: #F5F0E8;
+  --br-bg-card: #FFFFFF;
+  --br-bg-stripe: #F5F2EC;
+  --br-bg-lessons: #FAFAF7;
+  --br-ink: #1C1C1C;
+  --br-ink-light: #555555;
+  --br-ink-muted: #8B8B8B;
+  --br-accent: #C2513B;
+  --br-accent-light: #E07A5F;
+  --br-positive: #5B8C6F;
+  --br-neutral: #4A6FA5;
+  --br-negative: #C2513B;
+  --br-border: #E8E4DA;
+  --br-border-light: #F0EDE5;
+  --br-callout-bg: #FDF6F2;
+  --br-callout-ink: #5D3A2E;
+  --br-tag-bg: #FDF2EC;
+
+  /* 阴影 */
+  --br-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  --br-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+  /* 圆角 */
+  --br-radius: 12px;
+  --br-radius-sm: 8px;
+
+  /* 排版 */
+  --br-font-serif: 'Playfair Display', 'Noto Serif SC', serif;
+  --br-font-sans: 'DM Sans', 'Noto Sans SC', sans-serif;
+  --br-font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+  --br-font-size: 15px;
+  --br-line-height: 1.7;
+}
+
+/* --------------------------------------------------------------------------
+ * Global reset（仅在 .br-theme 内生效）
+ * -------------------------------------------------------------------------- */
+.br-theme,
+.br-theme *,
+.br-theme *::before,
+.br-theme *::after {
+  box-sizing: border-box;
+}
+
+.br-theme {
+  margin: 0;
+  padding: 0;
+  font-family: var(--br-font-sans);
+  font-size: var(--br-font-size);
+  line-height: var(--br-line-height);
+  color: var(--br-ink);
+  background: var(--br-bg-page);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --------------------------------------------------------------------------
+ * Typography
+ * -------------------------------------------------------------------------- */
+.br-theme h1 {
+  font-family: var(--br-font-serif);
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--br-ink);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.br-theme h2 {
+  font-family: var(--br-font-serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--br-neutral);
+  margin: 36px 0 14px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--br-accent-light);
+}
+
+.br-theme h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--br-ink);
+  margin: 24px 0 8px 0;
+}
+
+.br-theme h4 {
+  font-family: var(--br-font-serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--br-ink);
+  margin: 14px 0 8px 0;
+}
+
+.br-theme p {
+  margin: 0 0 10px 0;
+  color: var(--br-ink-light);
+}
+
+.br-theme a {
+  color: var(--br-accent-light);
+  text-decoration: none;
+}
+
+.br-theme a:hover {
+  text-decoration: underline;
+}
+
+.br-theme ul,
+.br-theme ol {
+  padding-left: 20px;
+  margin: 6px 0;
+}
+
+.br-theme li {
+  margin-bottom: 6px;
+  color: var(--br-ink-light);
+}
+
+.br-theme strong {
+  color: var(--br-ink);
+}
+
+/* --------------------------------------------------------------------------
+ * Page Shell — 居中最大宽度容器
+ * -------------------------------------------------------------------------- */
+.br-theme .br-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+/* --------------------------------------------------------------------------
+ * Hero — 报告顶部区域
+ * -------------------------------------------------------------------------- */
+.br-theme .br-hero {
+  text-align: center;
+  padding: 60px 20px 30px;
+}
+
+.br-theme .br-hero h1 {
+  font-family: var(--br-font-serif);
+  font-size: 42px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.br-theme .br-hero .br-subtitle {
+  font-size: 15px;
+  color: var(--br-ink-muted);
+}
+
+/* --------------------------------------------------------------------------
+ * Cover — 全宽封面（带渐变背景和统计卡片）
+ * -------------------------------------------------------------------------- */
+.br-theme .br-cover {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 80px;
+  min-height: 55vh;
+  background: linear-gradient(160deg, #F9F7F2 0%, #F4EFE6 50%, #EDE4D4 100%);
+  padding: 64px 80px;
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.br-theme .br-cover-label {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--br-accent);
+  margin-bottom: 28px;
+  font-weight: 600;
+}
+
+.br-theme .br-cover-title {
+  font-family: var(--br-font-serif);
+  font-size: 56px;
+  font-weight: 900;
+  color: var(--br-ink);
+  line-height: 1.1;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+
+.br-theme .br-cover-subtitle {
+  font-size: 19px;
+  color: var(--br-neutral);
+  line-height: 1.6;
+}
+
+.br-theme .br-cover-line {
+  width: 60px;
+  height: 2px;
+  background: var(--br-accent);
+  margin: 28px 0;
+}
+
+.br-theme .br-cover-footer {
+  font-size: 11px;
+  color: var(--br-ink-muted);
+  letter-spacing: 2px;
+}
+
+.br-theme .br-cover-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* --------------------------------------------------------------------------
+ * Section — 白色背景内容卡片
+ * -------------------------------------------------------------------------- */
+.br-theme .br-section {
+  background: var(--br-bg-card);
+  border-radius: var(--br-radius);
+  padding: 20px 24px;
+  margin: 20px 0;
+  box-shadow: var(--br-shadow);
+}
+
+.br-theme .br-section h3 {
+  margin-top: 0;
+}
+
+.br-theme .br-section-label {
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--br-accent);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+ * Card（index-style — 左侧 accent 色条 + hover 浮起）
+ * -------------------------------------------------------------------------- */
+.br-theme .br-card {
+  display: block;
+  background: var(--br-bg-card);
+  border-radius: var(--br-radius);
+  padding: 22px 26px;
+  box-shadow: var(--br-shadow);
+  border-left: 4px solid var(--br-accent-light);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+}
+
+.br-theme a.br-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--br-shadow-hover);
+  text-decoration: none;
+}
+
+.br-theme .br-card h2 {
+  font-family: var(--br-font-serif);
+  font-size: 24px;
+  font-weight: 900;
+  margin: 0 0 4px 0;
+  padding: 0;
+  border: none;
+  color: var(--br-ink);
+}
+
+.br-theme .br-card .br-subtitle {
+  font-size: 12px;
+  color: var(--br-ink-muted);
+  margin-bottom: 12px;
+}
+
+.br-theme .br-card-accent {
+  border-left-color: var(--br-neutral);
+}
+
+/* --------------------------------------------------------------------------
+ * Card Grid — 卡片网格（用于首页）
+ * -------------------------------------------------------------------------- */
+.br-theme .br-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+@media (max-width: 700px) {
+  .br-theme .br-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * Tag — 药丸标签
+ * -------------------------------------------------------------------------- */
+.br-theme .br-tag {
+  display: inline-block;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--br-tag-bg);
+  color: var(--br-accent-light);
+  font-weight: 500;
+  margin-right: 6px;
+  border: 1px solid rgba(194, 81, 59, 0.12);
+}
+
+.br-theme .br-tag-sm {
+  font-size: 10px;
+  padding: 2px 7px;
+}
+
+.br-theme .br-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
+ * Table — 深色表头 + 斑马纹
+ * -------------------------------------------------------------------------- */
+.br-theme .br-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  margin: 16px 0;
+}
+
+.br-theme .br-table thead th {
+  background: var(--br-ink);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.br-theme .br-table tbody td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--br-border);
+  vertical-align: middle;
+  line-height: 1.5;
+  color: var(--br-ink-light);
+}
+
+.br-theme .br-table tbody tr:nth-child(even) {
+  background: var(--br-bg-stripe);
+}
+
+.br-theme .br-table .br-td-label {
+  font-weight: 600;
+  color: var(--br-ink);
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+ * Callout — 强调信息框
+ * -------------------------------------------------------------------------- */
+.br-theme .br-callout {
+  background: var(--br-callout-bg);
+  border-left: 3px solid var(--br-accent);
+  padding: 14px 20px;
+  margin: 20px 0;
+  border-radius: 0 var(--br-radius-sm) var(--br-radius-sm) 0;
+  font-size: 14px;
+  color: var(--br-callout-ink);
+  line-height: 1.6;
+}
+
+.br-theme .br-callout strong {
+  color: var(--br-accent);
+}
+
+.br-theme .br-callout-info {
+  border-left-color: var(--br-neutral);
+  background: #F2F5FA;
+  color: #2E3D5D;
+}
+
+.br-theme .br-callout-info strong {
+  color: var(--br-neutral);
+}
+
+.br-theme .br-callout-positive {
+  border-left-color: var(--br-positive);
+  background: #F2F8F4;
+  color: #2E5D3A;
+}
+
+.br-theme .br-callout-positive strong {
+  color: var(--br-positive);
+}
+
+/* --------------------------------------------------------------------------
+ * Stat Card — 统计数字卡片
+ * -------------------------------------------------------------------------- */
+.br-theme .br-stat-row {
+  display: flex;
+  gap: 14px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.br-theme .br-stat-card {
+  flex: 1;
+  min-width: 130px;
+  background: var(--br-bg-card);
+  border-radius: var(--br-radius-sm);
+  padding: 18px 16px;
+  text-align: center;
+  box-shadow: var(--br-shadow);
+  border: 1px solid var(--br-border-light);
+}
+
+.br-theme .br-stat-number {
+  font-family: var(--br-font-serif);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--br-accent);
+  line-height: 1.1;
+}
+
+.br-theme .br-stat-label {
+  font-size: 10px;
+  color: var(--br-ink-muted);
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+/* --------------------------------------------------------------------------
+ * Insight Card — 正确/错误分析卡片（带水印数字）
+ * -------------------------------------------------------------------------- */
+.br-theme .br-insight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin: 20px 0;
+}
+
+.br-theme .br-insight-card {
+  background: var(--br-bg-card);
+  border-radius: var(--br-radius);
+  padding: 24px 28px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--br-shadow);
+  border: 1px solid var(--br-border-light);
+}
+
+.br-theme .br-insight-card.br-insight-right {
+  border-top: 3px solid var(--br-positive);
+}
+
+.br-theme .br-insight-card.br-insight-wrong {
+  border-top: 3px solid var(--br-negative);
+}
+
+.br-theme .br-insight-num {
+  font-family: var(--br-font-serif);
+  font-size: 44px;
+  font-weight: 900;
+  opacity: 0.08;
+  position: absolute;
+  top: 10px;
+  right: 18px;
+  line-height: 1;
+}
+
+.br-theme .br-insight-right .br-insight-num {
+  color: var(--br-positive);
+}
+
+.br-theme .br-insight-wrong .br-insight-num {
+  color: var(--br-negative);
+}
+
+.br-theme .br-insight-card h4 {
+  font-family: var(--br-font-serif);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--br-ink);
+  margin: 0 0 8px 0;
+  padding-right: 44px;
+  line-height: 1.3;
+}
+
+.br-theme .br-insight-card p {
+  font-size: 13.5px;
+  color: var(--br-ink-light);
+  line-height: 1.65;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 700px) {
+  .br-theme .br-insight-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * Divider — 装饰分割线
+ * -------------------------------------------------------------------------- */
+.br-theme .br-divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    var(--br-accent) 0%,
+    var(--br-accent) 60px,
+    var(--br-border) 60px,
+    transparent 100%
+  );
+  margin: 32px 0;
+}
+
+/* --------------------------------------------------------------------------
+ * Source List — 来源引用列表
+ * -------------------------------------------------------------------------- */
+.br-theme .br-source-list ol {
+  margin: 8px 0 8px 20px;
+  font-size: 12.5px;
+  color: var(--br-ink-light);
+  line-height: 1.7;
+}
+
+.br-theme .br-source-list ol li {
+  margin-bottom: 3px;
+}
+
+.br-theme .br-source-list a {
+  color: var(--br-neutral);
+  text-decoration: none;
+}
+
+.br-theme .br-source-list a:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+ * Timeline / Path — 水平步骤条
+ * -------------------------------------------------------------------------- */
+.br-theme .br-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.br-theme .br-path-step {
+  background: var(--br-bg-card);
+  border: 1px solid var(--br-border);
+  border-radius: var(--br-radius-sm);
+  padding: 8px 16px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--br-ink);
+  white-space: nowrap;
+}
+
+.br-theme .br-path-arrow {
+  color: var(--br-accent);
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+ * Key Events — 事件时间线（dotted 分隔）
+ * -------------------------------------------------------------------------- */
+.br-theme .br-key-events {
+  margin: 8px 0;
+}
+
+.br-theme .br-event-item {
+  padding: 8px 0;
+  border-bottom: 1px dotted var(--br-border-light);
+  font-size: 13.5px;
+}
+
+.br-theme .br-event-date {
+  font-weight: 600;
+  color: var(--br-neutral);
+  margin-right: 8px;
+}
+
+.br-theme .br-event-text {
+  color: var(--br-ink-light);
+}
+
+/* --------------------------------------------------------------------------
+ * Product Card — 产品分析卡片
+ * -------------------------------------------------------------------------- */
+.br-theme .br-product-card {
+  background: var(--br-bg-card);
+  border-radius: var(--br-radius);
+  padding: 28px 32px;
+  box-shadow: var(--br-shadow);
+  border: 1px solid var(--br-border-light);
+  border-top: 3px solid var(--br-neutral);
+  margin-bottom: 24px;
+}
+
+.br-theme .br-product-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--br-border-light);
+}
+
+.br-theme .br-product-rank {
+  font-family: var(--br-font-serif);
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--br-accent);
+  opacity: 0.3;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.br-theme .br-product-name {
+  font-family: var(--br-font-serif);
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--br-ink);
+  margin: 0;
+}
+
+.br-theme .br-product-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.br-theme .br-product-type {
+  font-size: 12px;
+  color: var(--br-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.br-theme .br-product-body h4 {
+  font-family: var(--br-font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--br-ink);
+  margin: 14px 0 8px 0;
+}
+
+.br-theme .br-product-body p {
+  font-size: 13.5px;
+  color: var(--br-ink-light);
+  line-height: 1.65;
+  margin-bottom: 6px;
+}
+
+.br-theme .br-product-body ul {
+  margin: 6px 0 6px 18px;
+}
+
+.br-theme .br-product-body ul li {
+  font-size: 13.5px;
+  color: var(--br-ink-light);
+  line-height: 1.65;
+  margin-bottom: 3px;
+}
+
+/* --------------------------------------------------------------------------
+ * Confidence Badge — 可信度标签
+ * -------------------------------------------------------------------------- */
+.br-theme .br-confidence {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.br-theme .br-conf-high {
+  background: #E8F0E8;
+  color: #3A6B47;
+}
+
+.br-theme .br-conf-medium {
+  background: #F5F0E0;
+  color: #8B6914;
+}
+
+.br-theme .br-conf-low {
+  background: #FDEEDD;
+  color: #A04030;
+}
+
+/* --------------------------------------------------------------------------
+ * Learning Cards — 可学/不可学/最佳经验/开放问题
+ * -------------------------------------------------------------------------- */
+.br-theme .br-learn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.br-theme .br-learn-card {
+  background: var(--br-bg-card);
+  border-radius: var(--br-radius);
+  padding: 20px 24px;
+  box-shadow: var(--br-shadow);
+  border: 1px solid var(--br-border-light);
+}
+
+.br-theme .br-learn-card h4 {
+  font-family: var(--br-font-serif);
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+}
+
+.br-theme .br-learn-can h4 {
+  color: var(--br-positive);
+}
+
+.br-theme .br-learn-cannot h4 {
+  color: var(--br-accent);
+}
+
+.br-theme .br-learn-best h4 {
+  color: var(--br-neutral);
+}
+
+.br-theme .br-learn-open h4 {
+  color: #B8860B;
+}
+
+.br-theme .br-learn-card ul {
+  margin: 6px 0 6px 18px;
+}
+
+.br-theme .br-learn-card li {
+  font-size: 13.5px;
+  color: var(--br-ink-light);
+  line-height: 1.65;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 700px) {
+  .br-theme .br-learn-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * Lessons Box — 经验总结框（浅色背景）
+ * -------------------------------------------------------------------------- */
+.br-theme .br-lessons {
+  background: var(--br-bg-lessons);
+  border-radius: var(--br-radius-sm);
+  padding: 16px 20px;
+  border: 1px solid var(--br-border-light);
+  margin: 12px 0;
+}
+
+.br-theme .br-lessons h4 {
+  margin-top: 0;
+}
+
+.br-theme .br-lessons ul {
+  margin: 6px 0 6px 18px;
+}
+
+.br-theme .br-lessons li {
+  font-size: 13.5px;
+  line-height: 1.65;
+  margin-bottom: 3px;
+}
+
+/* --------------------------------------------------------------------------
+ * Grid Helpers
+ * -------------------------------------------------------------------------- */
+.br-theme .br-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin: 20px 0;
+}
+
+@media (max-width: 700px) {
+  .br-theme .br-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * Muted / Disclaimer
+ * -------------------------------------------------------------------------- */
+.br-theme .br-muted {
+  color: var(--br-ink-muted);
+  font-size: 12px;
+}
+
+.br-theme .br-disclaimer {
+  font-size: 12px;
+  color: var(--br-ink-muted);
+  font-style: italic;
+  margin-top: 8px;
+}
+
+/* --------------------------------------------------------------------------
+ * Footer
+ * -------------------------------------------------------------------------- */
+.br-theme .br-footer {
+  text-align: center;
+  margin-top: 48px;
+  padding: 30px 20px 50px;
+  font-size: 13px;
+  color: #BBB;
+}
+
+.br-theme .br-footer a {
+  color: var(--br-ink-muted);
+}
+
+/* --------------------------------------------------------------------------
+ * Responsive
+ * -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .br-theme .br-cover {
+    flex-direction: column;
+    text-align: center;
+    padding: 32px 24px;
+  }
+
+  .br-theme .br-cover-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .br-theme .br-product-card {
+    padding: 20px;
+  }
+
+  .br-theme .br-product-rank {
+    font-size: 28px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * Print
+ * -------------------------------------------------------------------------- */
+@media print {
+  .br-theme {
+    background: white;
+  }
+
+  .br-theme,
+  .br-theme * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .br-theme .br-section {
+    box-shadow: none;
+    border-bottom: 1px solid var(--br-border-light);
+    page-break-after: always;
+  }
+
+  .br-theme .br-section:last-child {
+    page-break-after: auto;
+  }
+
+  .br-theme h1,
+  .br-theme h2,
+  .br-theme h3 {
+    page-break-after: avoid;
+  }
+}
