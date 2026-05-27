@@ -511,13 +511,9 @@ function jumpToFirstUncompleted() {
     applyFilter();
   }
 
-  // 等待 DOM 更新后跳转、聚焦、并播放音频
+  // 等待 DOM 更新后跳转、聚焦（不自动播放，iPhone Safari 要求用户手势触发播放）
   setTimeout(() => {
     goToCardAndFocus(next.id);
-    // 跳转到新卡片后自动播放单词+例句音频
-    setTimeout(() => {
-      AudioPlayer.playFull(next);
-    }, 350);
     processingCardId = null;
   }, 150);
 }
@@ -684,6 +680,128 @@ function init() {
   $('#btn-pwa-help-close').addEventListener('click', () => {
     document.getElementById('pwa-help-panel').classList.remove('visible');
   });
+
+  // 部署健康检查
+  $('#btn-deploy-check').addEventListener('click', runDeployCheck);
 }
+
+/* ============================================================================
+ * 部署健康检查
+ * ============================================================================ */
+function runDeployCheck() {
+  var panel = document.getElementById('deploy-check-panel');
+  var results = document.getElementById('deploy-check-results');
+  panel.classList.add('visible');
+
+  var checks = [];
+  var base = window.DEUTSCH_COPY_BASE_PATH || '';
+
+  function addCheck(label, pass, detail) {
+    checks.push({ label: label, pass: pass, detail: detail });
+  }
+
+  function render() {
+    var html = '<h4>部署健康检查</h4>';
+    html += '<div style="font-size:11px;margin-bottom:8px;color:var(--br-ink-muted)">'
+      + 'URL: ' + escapeHtml(window.location.href) + '<br>'
+      + 'Base: ' + escapeHtml(base || '(root)') + '<br>'
+      + 'HTTPS: ' + (window.location.protocol === 'https:' ? '是' : '否') + '<br>'
+      + 'GitHub Pages: ' + (window.location.hostname.endsWith('github.io') ? '是' : '否') + '<br>'
+      + 'Standalone: ' + (window.matchMedia('(display-mode: standalone)').matches ? '是' : '否')
+      + '</div>';
+
+    checks.forEach(function(c) {
+      var icon = c.pass ? '&#x2705;' : '&#x274C;';
+      html += '<div style="font-size:12px;margin-bottom:3px;padding:4px 6px;'
+        + 'background:' + (c.pass ? '#e8f5e9' : '#ffebee') + ';border-radius:4px;">'
+        + icon + ' <strong>' + escapeHtml(c.label) + '</strong>'
+        + (c.detail ? '<br><span style="font-size:10px;color:var(--br-ink-muted)">' + escapeHtml(c.detail) + '</span>' : '')
+        + '</div>';
+    });
+
+    html += '<div style="margin-top:10px;">'
+      + '<button onclick="testPlayDE0001()" style="padding:6px 14px;border:1px solid var(--br-accent);'
+      + 'border-radius:4px;background:var(--br-accent);color:#fff;cursor:pointer;font-size:13px;">'
+      + '测试播放 DE-0001</button> '
+      + '<button onclick="document.getElementById(\'deploy-check-panel\').classList.remove(\'visible\')" '
+      + 'style="padding:6px 14px;border:1px solid var(--br-border);border-radius:4px;background:var(--br-card-bg);'
+      + 'cursor:pointer;font-size:13px;">关闭</button>'
+      + '</div>';
+
+    results.innerHTML = html;
+  }
+
+  // Run checks
+  addCheck('localStorage', (function() {
+    try { localStorage.setItem('_deploy_test', '1'); localStorage.removeItem('_deploy_test'); return true; }
+    catch(e) { return false; }
+  })(), 'localStorage 读写正常');
+
+  addCheck('Service Worker', 'serviceWorker' in navigator,
+    'serviceWorker' in navigator ? 'API 可用' : '浏览器不支持 Service Worker');
+
+  addCheck('Manifest', true, '待异步检查...');
+
+  // Async checks
+  fetch(resolveAssetUrl('manifest.webmanifest'))
+    .then(function(r) {
+      var idx = checks.findIndex(function(c) { return c.label === 'Manifest'; });
+      if (idx >= 0) {
+        checks[idx].pass = r.ok;
+        checks[idx].detail = r.ok ? ('HTTP ' + r.status) : ('HTTP ' + r.status + ' — 无法访问');
+      }
+      render();
+    })
+    .catch(function() {
+      var idx = checks.findIndex(function(c) { return c.label === 'Manifest'; });
+      if (idx >= 0) { checks[idx].pass = false; checks[idx].detail = 'fetch 失败'; }
+      render();
+    });
+
+  function checkAudioFile(path, label) {
+    var url = resolveAssetUrl(path);
+    fetch(url, { method: 'HEAD' })
+      .then(function(r) {
+        addCheck(label, r.ok, 'HTTP ' + r.status + ' — ' + url);
+        render();
+      })
+      .catch(function(e) {
+        addCheck(label, false, 'fetch 失败 — ' + url);
+        render();
+      });
+  }
+
+  addCheck('Audio 对象', typeof Audio !== 'undefined', typeof Audio !== 'undefined' ? '构造函数可用' : '不可用');
+
+  checkAudioFile('/audio/de/words/DE-0001.mp3', 'Word 音频 DE-0001');
+  checkAudioFile('/audio/de/examples/DE-0001.mp3', 'Example 音频 DE-0001');
+  checkAudioFile('icons/icon-192.png', 'Icon 192');
+  checkAudioFile('icons/icon-512.png', 'Icon 512');
+
+  render();
+}
+
+// 全局：测试播放按钮（必须由用户点击触发）
+window.testPlayDE0001 = function() {
+  var card = findWordById ? findWordById('DE-0001') : null;
+  if (!card) {
+    // 从 WORD_BANK 直接查找
+    var all = [];
+    if (typeof WORD_BANK !== 'undefined') {
+      Object.values(WORD_BANK).forEach(function(arr) { all.push.apply(all, arr); });
+    }
+    card = all.find(function(c) { return c.id === 'DE-0001'; });
+  }
+  if (!card) {
+    alert('未找到 DE-0001 词卡');
+    return;
+  }
+  // 先播单词，1.5秒后播例句
+  if (typeof AudioPlayer !== 'undefined') {
+    AudioPlayer.stop();
+    AudioPlayer.playWord(card);
+    setTimeout(function() { AudioPlayer.playExample(card); }, 2000);
+  }
+};
 
 document.addEventListener('DOMContentLoaded', init);

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deutsch Copy — 页面未找到</title>
+<style>
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #faf9f7;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; margin: 0; padding: 20px;
+  }
+  .box {
+    background: #fff; border: 1px solid #e0ddd8; border-radius: 12px;
+    padding: 40px 32px; max-width: 420px; width: 100%; text-align: center;
+  }
+  h1 { font-size: 48px; margin: 0 0 8px; color: #c2513b; }
+  p { color: #666; margin: 8px 0 20px; font-size: 14px; line-height: 1.6; }
+  a {
+    display: inline-block; padding: 10px 24px;
+    background: #c2513b; color: #fff; text-decoration: none;
+    border-radius: 6px; font-size: 14px;
+  }
+  a:hover { background: #a84430; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>404</h1>
+  <p>页面未找到。<br>您可能遇到了损坏的链接，或者页面已被移动。</p>
+  <a href="./">返回 Deutsch Copy 首页</a>
+</div>
+<script>
+// GitHub Pages SPA fallback: redirect to index.html on 404
+(function() {
+  var path = window.location.pathname;
+  var base = window.DEUTSCH_COPY_BASE_PATH || '';
+  if (path !== base + '/' && path !== base + '/index.html' && path !== base + '/404.html') {
+    window.location.replace('./');
+  }
+})();
+</script>
+</body>
+</html>

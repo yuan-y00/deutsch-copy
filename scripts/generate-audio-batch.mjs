@@ -335,7 +335,7 @@ async function main() {
   const effectiveProvider = args.dryRun ? 'dry-run' : provider;
 
   const batchLabel = `第 ${args.batch} 批`;
-  const cards = loadCards(args.batch);
+  let cards = loadCards(args.batch);
   if (!cards || cards.length === 0) {
     console.error(`[ERROR] 无法加载${batchLabel}词卡数据`);
     process.exit(1);

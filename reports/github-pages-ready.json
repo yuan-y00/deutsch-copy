@@ -1,0 +1,121 @@
+{
+  "checkedAt": "2026-05-27T11:38:10.645Z",
+  "root": "D:\\Yuan\\deutsch-copy",
+  "files": {
+    "index.html": {
+      "path": "index.html",
+      "label": "index.html",
+      "exists": true,
+      "size": 7400
+    },
+    "manifest.webmanifest": {
+      "path": "manifest.webmanifest",
+      "label": "manifest.webmanifest",
+      "exists": true,
+      "size": 579,
+      "start_url": "./index.html",
+      "scope": "./",
+      "pathsOk": true
+    },
+    ".nojekyll": {
+      "path": ".nojekyll",
+      "label": ".nojekyll",
+      "exists": true,
+      "size": 0
+    },
+    "404.html": {
+      "path": "404.html",
+      "label": "404.html",
+      "exists": true,
+      "size": 1424
+    },
+    "service-worker.js": {
+      "path": "service-worker.js",
+      "label": "service-worker.js",
+      "exists": true,
+      "size": 4037
+    },
+    "css/app.css": {
+      "path": "css/app.css",
+      "label": "css/app.css",
+      "exists": true,
+      "size": 17232
+    },
+    "theme/brand-research-theme.css": {
+      "path": "theme/brand-research-theme.css",
+      "label": "theme/brand-research-theme.css",
+      "exists": true,
+      "size": 21102
+    },
+    "js/data.js": {
+      "path": "js/data.js",
+      "label": "js/data.js",
+      "exists": true,
+      "size": 856714
+    },
+    "js/storage.js": {
+      "path": "js/storage.js",
+      "label": "js/storage.js",
+      "exists": true,
+      "size": 6179
+    },
+    "js/audio.js": {
+      "path": "js/audio.js",
+      "label": "js/audio.js",
+      "exists": true,
+      "size": 8338
+    },
+    "js/certificates.js": {
+      "path": "js/certificates.js",
+      "label": "js/certificates.js",
+      "exists": true,
+      "size": 7008
+    },
+    "js/validate.js": {
+      "path": "js/validate.js",
+      "label": "js/validate.js",
+      "exists": true,
+      "size": 24633
+    },
+    "js/app.js": {
+      "path": "js/app.js",
+      "label": "js/app.js",
+      "exists": true,
+      "size": 29726
+    },
+    "icons/icon-192.png": {
+      "path": "icons/icon-192.png",
+      "label": "icons/icon-192.png",
+      "exists": true,
+      "size": 1169
+    },
+    "icons/icon-512.png": {
+      "path": "icons/icon-512.png",
+      "label": "icons/icon-512.png",
+      "exists": true,
+      "size": 5748
+    },
+    "_basePathConfig": {
+      "exists": true,
+      "label": "resolveAssetUrl 配置"
+    },
+    "_swReg": {
+      "exists": true,
+      "relativePath": true
+    }
+  },
+  "audioStats": {
+    "wordMp3": 1300,
+    "exampleMp3": 1300,
+    "totalGermanMp3": 2600,
+    "de0001WordExists": true,
+    "de0001ExampleExists": true,
+    "zhWordMp3": 0,
+    "zhMeaningMp3": 0
+  },
+  "issues": [],
+  "warnings": [
+    "文件大小为 0: .nojekyll"
+  ],
+  "pass": true
+}

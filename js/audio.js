@@ -1,113 +1,186 @@
 /* ============================================================================
- * audio.js — 统一音频播放模块
+ * audio.js — 统一音频播放模块 (GitHub Pages + iPhone Safari 兼容)
  *
  * 架构：
- *   - 正式音频：优先使用 card.wordAudioUrl / exampleAudioUrl
- *   - meaningAudioUrl 保留字段，但播放逻辑已忽略，不再播放中文含义
- *   - Fallback：音频文件不存在或加载失败时，使用 Web Speech API (TTS) de-DE
+ *   - 所有音频 URL 通过 resolveAssetUrl() 处理，适配 GitHub Pages 子路径
+ *   - 正式音频：优先使用 card.wordAudioUrl / exampleAudioUrl (mp3)
+ *   - 不播放 meaningAudioUrl，不播放中文
+ *   - Fallback：mp3 失败时使用 Web Speech API (TTS) de-DE
  *   - 队列：同一时间只有一组音频播放，新播放自动停止旧播放
- *   - 状态：播放中按钮显示 audio-active 样式
+ *   - iPhone Safari：所有播放必须由用户点击直接触发
+ *   - 错误处理：捕获 play() rejection，显示轻量提示
  *
  * 用法：
- *   AudioPlayer.playWord(card)          — 单词按钮：wordUrl（仅德语）
- *   AudioPlayer.playExample(card)       — 例句按钮：exampleUrl（仅德语）
- *   AudioPlayer.playFull(card)          — 抄写按钮：wordUrl → exampleUrl（仅德语）
+ *   AudioPlayer.playWord(card)          — 单词按钮：word mp3
+ *   AudioPlayer.playExample(card)       — 例句按钮：example mp3
+ *   AudioPlayer.playFull(card)          — 抄写按钮：word → example mp3
  *   AudioPlayer.stop()                  — 停止当前播放
  * ============================================================================ */
 
-const AudioPlayer = (function () {
+var AudioPlayer = (function () {
   /* --- 内部状态 --- */
-  let _abortFlag = false;                     // 停止标记
-  let _activeEls = [];                        // 当前显示播放状态的 DOM 元素
-  let _fallbackUsed = false;                  // 当前序列是否使用了 fallback
+  var _abortFlag = false;
+  var _activeEls = [];
+  var _fallbackUsed = false;
+  var _currentAudio = null;   // 当前播放的 Audio 对象（用于 iOS 中断恢复）
+
+  /* --- resolveAssetUrl 快捷方式 --- */
+  function _resolve(path) {
+    return (typeof resolveAssetUrl === 'function') ? resolveAssetUrl(path) : path;
+  }
 
   /* --- 工具 --- */
 
   function _clearActiveState() {
-    _activeEls.forEach(el => el && el.classList.remove('audio-active'));
+    _activeEls.forEach(function(el) { if (el) el.classList.remove('audio-active'); });
     _activeEls = [];
   }
 
   function _setActiveState(els) {
     _clearActiveState();
     _activeEls = Array.isArray(els) ? els.filter(Boolean) : (els ? [els] : []);
-    _activeEls.forEach(el => el.classList.add('audio-active'));
+    _activeEls.forEach(function(el) { el.classList.add('audio-active'); });
   }
 
-  /* --- 单段播放：文件优先，TTS fallback --- */
+  function _showHint(msg) {
+    // 轻量提示，不打扰用户
+    var el = document.getElementById('audio-play-hint');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'audio-play-hint';
+      el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);'
+        + 'background:rgba(0,0,0,0.75);color:#fff;padding:6px 16px;border-radius:20px;'
+        + 'font-size:12px;z-index:9999;pointer-events:none;opacity:0;transition:opacity 0.3s;';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = '1';
+    setTimeout(function() { el.style.opacity = '0'; }, 2500);
+  }
+
+  /* --- 单段播放：mp3 优先，TTS fallback --- */
 
   function _playFileAudio(url) {
-    return new Promise((resolve) => {
+    return new Promise(function(resolve) {
       if (!url || !url.trim()) { resolve(false); return; }
-      const audio = new Audio(url);
-      audio.onended = () => resolve(true);
-      audio.onerror = () => {
-        console.log('[Audio] 音频文件加载失败，回退到 TTS：' + url);
-        resolve(false);
+      var resolvedUrl = _resolve(url.trim());
+      console.log('[Audio] 加载：' + resolvedUrl);
+      var audio = new Audio(resolvedUrl);
+      _currentAudio = audio;
+
+      var resolved = false;
+      function finish(ok) {
+        if (resolved) return;
+        resolved = true;
+        _currentAudio = null;
+        audio.onended = null;
+        audio.onerror = null;
+        try { audio.pause(); } catch(e) {}
+        audio.src = '';
+        audio.load();
+        resolve(ok);
+      }
+
+      audio.onended = function() { finish(true); };
+
+      audio.onerror = function(e) {
+        console.warn('[Audio] 文件加载失败 → ' + resolvedUrl + ' (可能是 404 或网络错误)');
+        finish(false);
       };
-      audio.play().catch(() => {
-        console.log('[Audio] 音频播放失败，回退到 TTS：' + url);
-        resolve(false);
-      });
+
+      var playPromise;
+      try {
+        playPromise = audio.play();
+      } catch(e) {
+        console.warn('[Audio] play() 同步异常 → ' + resolvedUrl + ' : ' + e.message);
+        finish(false);
+        return;
+      }
+
+      if (playPromise !== undefined && typeof playPromise.catch === 'function') {
+        playPromise.catch(function(err) {
+          console.warn('[Audio] play() 被拒绝 → ' + resolvedUrl + ' : ' + (err.message || err));
+          _showHint('请再次点击播放按钮');
+          finish(false);
+        });
+      }
     });
   }
 
   function _playTts(text, lang) {
-    return new Promise((resolve) => {
+    return new Promise(function(resolve) {
       if (!text || !text.trim()) { resolve(false); return; }
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = lang;
-      u.rate = lang === 'de-DE' ? 0.85 : 0.9;
-      u.onend = () => resolve(true);
-      u.onerror = () => {
-        console.log('[Audio] TTS 播放失败：' + text);
+      console.log('[Audio] TTS fallback (lang=' + lang + '): ' + text.substring(0, 60));
+      try {
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = lang;
+        u.rate = 0.85;
+        u.onend = function() { resolve(true); };
+        u.onerror = function(e) {
+          console.warn('[Audio] TTS 失败：' + (e.error || 'unknown'));
+          resolve(false);
+        };
+        speechSynthesis.speak(u);
+      } catch(e) {
+        console.warn('[Audio] TTS 不可用：' + e.message);
         resolve(false);
-      };
-      speechSynthesis.speak(u);
+      }
     });
   }
 
-  /* 播放一段音频：先试文件，失败则 TTS */
-  async function _playSegment(url, fallbackText, fallbackLang) {
-    if (_abortFlag) return;
-    if (url && url.trim()) {
-      const ok = await _playFileAudio(url);
-      if (!ok && !_abortFlag) {
+  /* 播放一段音频：先试 mp3，失败则 TTS */
+  function _playSegment(url, fallbackText, fallbackLang) {
+    return new Promise(async function(resolve) {
+      if (_abortFlag) { resolve(false); return; }
+      if (url && url.trim()) {
+        var ok = await _playFileAudio(url);
+        if (!ok && !_abortFlag) {
+          _fallbackUsed = true;
+          await _playTts(fallbackText, fallbackLang);
+        }
+      } else {
         _fallbackUsed = true;
         await _playTts(fallbackText, fallbackLang);
       }
-    } else {
-      _fallbackUsed = true;
-      await _playTts(fallbackText, fallbackLang);
-    }
+      resolve(true);
+    });
   }
 
   /* --- 序列播放 --- */
 
-  async function _playSequence(segments, activeEls, onComplete) {
-    // 停止当前播放
-    _abortFlag = true;
-    // 等待一个微任务让上一个序列的 Promise 链终止
-    await new Promise(r => setTimeout(r, 30));
-    _abortFlag = false;
-    _fallbackUsed = false;
+  function _playSequence(segments, activeEls, onComplete) {
+    return new Promise(async function(resolveSeq) {
+      // 停止当前播放
+      _abortFlag = true;
+      speechSynthesis.cancel();
+      if (_currentAudio) {
+        try { _currentAudio.pause(); } catch(e) {}
+        _currentAudio = null;
+      }
+      // 等待微任务让上一个序列终止
+      await new Promise(function(r) { setTimeout(r, 30); });
+      _abortFlag = false;
+      _fallbackUsed = false;
 
-    _setActiveState(activeEls);
+      _setActiveState(activeEls);
 
-    for (const seg of segments) {
-      if (_abortFlag) break;
-      await _playSegment(seg.url, seg.fallbackText, seg.fallbackLang);
-    }
+      for (var i = 0; i < segments.length; i++) {
+        if (_abortFlag) break;
+        var seg = segments[i];
+        await _playSegment(seg.url, seg.fallbackText, seg.fallbackLang);
+      }
 
-    _clearActiveState();
+      _clearActiveState();
 
-    if (_fallbackUsed) {
-      console.log('[Audio] 提示：当前播放使用了 Web Speech TTS fallback，非正式音频文件。');
-    }
+      if (_fallbackUsed) {
+        console.log('[Audio] 当前播放使用了 Web Speech TTS fallback。');
+      }
 
-    if (!_abortFlag && typeof onComplete === 'function') {
-      onComplete();
-    }
+      if (!_abortFlag && typeof onComplete === 'function') {
+        onComplete();
+      }
+      resolveSeq();
+    });
   }
 
   /* --- 公开 API --- */
@@ -115,15 +188,19 @@ const AudioPlayer = (function () {
   function stop() {
     _abortFlag = true;
     speechSynthesis.cancel();
+    if (_currentAudio) {
+      try { _currentAudio.pause(); } catch(e) {}
+      _currentAudio = null;
+    }
     _clearActiveState();
   }
 
   function playWord(card) {
-    const wordBtn = document.querySelector(
-      `button[data-action="play-word"][data-card-id="${card.id}"]`
+    if (!card) return;
+    var wordBtn = document.querySelector(
+      'button[data-action="play-word"][data-card-id="' + card.id + '"]'
     );
-    // 只播放德语单词，不播放中文含义
-    const segments = [
+    var segments = [
       {
         url: card.wordAudioUrl,
         fallbackText: (card.wordAudioText && card.wordAudioText.trim()) || card.wordDisplay,
@@ -134,24 +211,25 @@ const AudioPlayer = (function () {
   }
 
   function playExample(card) {
-    const exampleBtns = document.querySelectorAll(
-      `button[data-action="play-example"][data-card-id="${card.id}"]`
+    if (!card) return;
+    var exampleBtns = document.querySelectorAll(
+      'button[data-action="play-example"][data-card-id="' + card.id + '"]'
     );
-    // 只播放德语例句
-    const segments = [
+    var segments = [
       {
         url: card.exampleAudioUrl,
         fallbackText: (card.exampleAudioText && card.exampleAudioText.trim()) || card.exampleDe,
         fallbackLang: 'de-DE',
       },
     ];
-    _playSequence(segments, [...exampleBtns]);
+    _playSequence(segments, Array.prototype.slice.call(exampleBtns));
   }
 
   function playFull(card) {
-    const copyBtn = document.getElementById('copy-btn-' + card.id);
-    // 只播放德语单词 + 德语例句，不播放中文含义
-    const segments = [
+    if (!card) return;
+    var copyBtn = document.getElementById('copy-btn-' + card.id);
+    // 序列：word mp3 → example mp3（仅德语）
+    var segments = [
       {
         url: card.wordAudioUrl,
         fallbackText: (card.wordAudioText && card.wordAudioText.trim()) || card.wordDisplay,
@@ -163,12 +241,21 @@ const AudioPlayer = (function () {
         fallbackLang: 'de-DE',
       },
     ];
-    _playSequence(segments, copyBtn, () => {
-      // 播放完成后聚焦输入框
-      const input = document.getElementById('input-' + card.id);
-      if (input) input.focus();
+    _playSequence(segments, copyBtn, function() {
+      var input = document.getElementById('input-' + card.id);
+      if (input) {
+        input.focus();
+        // 将光标移到末尾
+        var len = input.value.length;
+        try { input.setSelectionRange(len, len); } catch(e) {}
+      }
     });
   }
 
-  return { playWord, playExample, playFull, stop };
+  return {
+    playWord: playWord,
+    playExample: playExample,
+    playFull: playFull,
+    stop: stop,
+  };
 })();

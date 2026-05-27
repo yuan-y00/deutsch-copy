@@ -118,6 +118,26 @@
 </div>
 
 <script>
+// Base path config
+(function() {
+  var path = window.location.pathname, base = "";
+  var parts = path.replace(/\/+$/, "").split("/");
+  var first = parts[1];
+  if (first && first.indexOf('.') === -1) base = "/" + first;
+  var m = (window.location.search || "").match(/[?&]base=([^&]*)/);
+  if (m) base = m[1] === "/" ? "" : m[1];
+  window.DEUTSCH_COPY_BASE_PATH = base;
+  window.resolveAssetUrl = function(p) {
+    if (!p) return "";
+    if (/^https?:\/\//i.test(p)) return p;
+    if (/^(data|blob):/i.test(p)) return p;
+    var b = window.DEUTSCH_COPY_BASE_PATH || "";
+    if (p.charAt(0) === "/") return b + p;
+    return b ? b + "/" + p : p;
+  };
+})();
+</script>
+<script>
 // ============================================================================
 // 加载数据
 // ============================================================================
@@ -289,7 +309,7 @@ function playWordAudio(cardId) {
   stopAudio();
   const card = cards.find(c => c.id === cardId);
   if (!card) return;
-  const url = card.wordAudioUrl;
+  const url = typeof resolveAssetUrl === 'function' ? resolveAssetUrl(card.wordAudioUrl) : card.wordAudioUrl;
   const audio = new Audio(url);
   audio.onerror = () => {
     // Fallback to TTS
@@ -313,7 +333,7 @@ function playExampleAudio(cardId) {
   stopAudio();
   const card = cards.find(c => c.id === cardId);
   if (!card) return;
-  const url = card.exampleAudioUrl;
+  const url = typeof resolveAssetUrl === 'function' ? resolveAssetUrl(card.exampleAudioUrl) : card.exampleAudioUrl;
   const audio = new Audio(url);
   audio.onerror = () => {
     const u = new SpeechSynthesisUtterance(card.exampleAudioText);
