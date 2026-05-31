@@ -10,8 +10,8 @@
  *  更新内容时递增版本号以刷新缓存
  * ============================================================================ */
 
-var CACHE_SHELL = 'deutsch-copy-shell-v1';
-var CACHE_AUDIO = 'deutsch-copy-audio-v1';
+var CACHE_SHELL = 'deutsch-copy-shell-v2';
+var CACHE_AUDIO = 'deutsch-copy-audio-v2';
 
 // 从 registration scope 推断 base path
 var BASE = self.location.pathname.replace(/\/service-worker\.js$/, '').replace(/\/$/, '') || '';
