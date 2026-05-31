@@ -146,7 +146,7 @@ var AudioPlayer = (function () {
     });
   }
 
-  /* --- 序列播放 --- */
+  /* --- 序列播放（异步版：用于按钮点击，内部可用 await） --- */
 
   function _playSequence(segments, activeEls, onComplete) {
     return new Promise(async function(resolveSeq) {
@@ -180,6 +180,118 @@ var AudioPlayer = (function () {
         onComplete();
       }
       resolveSeq();
+    });
+  }
+
+  /* --- 同步启动播放（用于 Enter/Next 等键盘事件，保持用户手势上下文） --- */
+  // 核心思路：在用户手势处理函数中同步调用 audio.play()，
+  // 避免 await/setTimeout 导致 iPhone Safari 拒绝播放。
+
+  function _syncPlayUrl(url, fallbackText, fallbackLang, onEnd) {
+    if (_abortFlag) { if (onEnd) onEnd(); return; }
+    if (url && url.trim()) {
+      console.log('[Audio] 加载：' + url);
+      var audio = new Audio(url);
+      _currentAudio = audio;
+      var ended = false;
+
+      function finish() {
+        if (ended) return;
+        ended = true;
+        _currentAudio = null;
+        audio.onended = null;
+        audio.onerror = null;
+        try { audio.pause(); } catch(e) {}
+        audio.src = '';
+        audio.load();
+        if (onEnd) onEnd();
+      }
+
+      audio.onended = finish;
+
+      audio.onerror = function() {
+        console.warn('[Audio] 文件加载失败 → ' + url);
+        _fallbackUsed = true;
+        finish();
+      };
+
+      var playPromise;
+      try {
+        playPromise = audio.play();
+      } catch(e) {
+        console.warn('[Audio] play() 同步异常：' + e.message);
+        _fallbackUsed = true;
+        finish();
+        return;
+      }
+
+      if (playPromise !== undefined && typeof playPromise.catch === 'function') {
+        playPromise.catch(function(err) {
+          console.warn('[Audio] play() 被拒绝：' + (err.message || err));
+          _showHint('请再次点击播放按钮');
+          _fallbackUsed = true;
+          finish();
+        });
+      }
+    } else {
+      _fallbackUsed = true;
+      _syncPlayTts(fallbackText, fallbackLang, onEnd);
+    }
+  }
+
+  function _syncPlayTts(text, lang, onEnd) {
+    if (!text || !text.trim()) { if (onEnd) onEnd(); return; }
+    try {
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      u.rate = 0.85;
+      u.onend = function() { if (onEnd) onEnd(); };
+      u.onerror = function() { if (onEnd) onEnd(); };
+      speechSynthesis.speak(u);
+    } catch(e) {
+      console.warn('[Audio] TTS 不可用：' + e.message);
+      if (onEnd) onEnd();
+    }
+  }
+
+  // playFullSync: 必须在用户手势处理函数中直接调用（同步启动播放）
+  // 播放序列：word mp3 → example mp3 → 聚焦输入框
+  function playFullSync(card) {
+    if (!card) return;
+
+    // 同步停止旧播放
+    _abortFlag = true;
+    speechSynthesis.cancel();
+    if (_currentAudio) {
+      try { _currentAudio.pause(); } catch(e) {}
+      _currentAudio = null;
+    }
+    _abortFlag = false;
+    _fallbackUsed = false;
+
+    var copyBtn = document.getElementById('copy-btn-' + card.id);
+    _setActiveState(copyBtn);
+
+    var wordUrl = _resolve(card.wordAudioUrl);
+    var wordText = (card.wordAudioText && card.wordAudioText.trim()) || card.wordDisplay;
+    var exampleUrl = _resolve(card.exampleAudioUrl);
+    var exampleText = (card.exampleAudioText && card.exampleAudioText.trim()) || card.exampleDe;
+
+    var self = this; // not used, but keeping closure clean
+
+    // Word → Example → focus
+    _syncPlayUrl(wordUrl, wordText, 'de-DE', function() {
+      if (_abortFlag) { _clearActiveState(); return; }
+      _syncPlayUrl(exampleUrl, exampleText, 'de-DE', function() {
+        _clearActiveState();
+        if (_fallbackUsed) console.log('[Audio] 当前播放使用了 TTS fallback。');
+        var input = document.getElementById('input-' + card.id);
+        if (input) {
+          input.focus();
+          var len = input.value.length;
+          try { input.setSelectionRange(len, len); } catch(e) {}
+        }
+      });
     });
   }
 
@@ -256,6 +368,7 @@ var AudioPlayer = (function () {
     playWord: playWord,
     playExample: playExample,
     playFull: playFull,
+    playFullSync: playFullSync,
     stop: stop,
   };
 })();

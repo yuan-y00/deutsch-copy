@@ -337,8 +337,10 @@ function handleCopyInputEnter(input) {
     processingCardId = cardId;
     const hint = document.getElementById('hint-' + cardId);
     if (hint) { hint.classList.remove('visible'); hint.textContent = ''; }
+    // 同步启动音频播放（必须在用户手势上下文中，iOS 兼容）
+    AudioPlayer.playFullSync(word);
     completeWord(cardId);
-    jumpToFirstUncompleted();
+    jumpToFirstUncompleted(true);
   } else {
     recordCopyAttempt(false);
     input.style.borderColor = 'var(--br-negative)';
@@ -382,7 +384,7 @@ function handleCopyClick(cardId) {
   setLastFocusedCardId(state.currentLevel, cardId);
   const hint = document.getElementById('hint-' + cardId);
   if (hint) { hint.classList.remove('visible'); hint.textContent = ''; }
-  AudioPlayer.playFull(word);
+  AudioPlayer.playFullSync(word);
 }
 
 function completeWord(cardId) {
@@ -489,7 +491,7 @@ function goToCardAndFocus(cardId) {
  *   5. 如果当前等级全部完成，显示已完成提示
  *   6. 如果 A1–C2 全部完成，显示总完成提示
  * ====================================================================== */
-function jumpToFirstUncompleted() {
+function jumpToFirstUncompleted(skipAudio) {
   const next = findFirstUncompletedCard(state.currentLevel);
 
   if (!next) {
@@ -511,7 +513,12 @@ function jumpToFirstUncompleted() {
     applyFilter();
   }
 
-  // 等待 DOM 更新后跳转、聚焦（不自动播放，iPhone Safari 要求用户手势触发播放）
+  // 同步启动音频播放（在用户手势上下文中，iOS 兼容）
+  if (!skipAudio) {
+    AudioPlayer.playFullSync(next);
+  }
+
+  // 等待 DOM 更新后跳转、聚焦
   setTimeout(() => {
     goToCardAndFocus(next.id);
     processingCardId = null;
