@@ -10,8 +10,8 @@
  *  更新内容时递增版本号以刷新缓存
  * ============================================================================ */
 
-var CACHE_SHELL = 'deutsch-copy-shell-v2';
-var CACHE_AUDIO = 'deutsch-copy-audio-v2';
+var CACHE_SHELL = 'deutsch-copy-shell-v3';
+var CACHE_AUDIO = 'deutsch-copy-audio-v3';
 
 // 从 registration scope 推断 base path
 var BASE = self.location.pathname.replace(/\/service-worker\.js$/, '').replace(/\/$/, '') || '';
@@ -26,15 +26,15 @@ function baseUrl(path) {
 var SHELL_URLS = [
   'index.html',
   '404.html',
-  'css/app.css?v=2',
+  'css/app.css?v=3',
   'theme/brand-research-theme.css',
   'manifest.webmanifest',
-  'js/data.js?v=2',
-  'js/storage.js?v=2',
-  'js/audio.js?v=2',
-  'js/certificates.js?v=2',
-  'js/validate.js?v=2',
-  'js/app.js?v=2',
+  'js/data.js?v=3',
+  'js/storage.js?v=3',
+  'js/audio.js?v=3',
+  'js/certificates.js?v=3',
+  'js/validate.js?v=3',
+  'js/app.js?v=3',
   'icons/icon-192.png',
   'icons/icon-512.png',
 ].map(baseUrl);

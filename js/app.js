@@ -337,9 +337,10 @@ function handleCopyInputEnter(input) {
     processingCardId = cardId;
     const hint = document.getElementById('hint-' + cardId);
     if (hint) { hint.classList.remove('visible'); hint.textContent = ''; }
-    // 同步启动音频播放（必须在用户手势上下文中，iOS 兼容）
-    AudioPlayer.playFullSync(word);
     completeWord(cardId);
+    // 播放下一个待抄写词卡的音频（在当前第用户手势中同步启动）
+    var next = findFirstUncompletedCard(state.currentLevel);
+    if (next) AudioPlayer.playFullSync(next);
     jumpToFirstUncompleted(true);
   } else {
     recordCopyAttempt(false);
