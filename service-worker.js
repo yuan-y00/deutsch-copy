@@ -26,15 +26,15 @@ function baseUrl(path) {
 var SHELL_URLS = [
   'index.html',
   '404.html',
-  'css/app.css',
+  'css/app.css?v=2',
   'theme/brand-research-theme.css',
   'manifest.webmanifest',
-  'js/data.js',
-  'js/storage.js',
-  'js/audio.js',
-  'js/certificates.js',
-  'js/validate.js',
-  'js/app.js',
+  'js/data.js?v=2',
+  'js/storage.js?v=2',
+  'js/audio.js?v=2',
+  'js/certificates.js?v=2',
+  'js/validate.js?v=2',
+  'js/app.js?v=2',
   'icons/icon-192.png',
   'icons/icon-512.png',
 ].map(baseUrl);
@@ -55,10 +55,10 @@ self.addEventListener('install', function(event) {
 });
 
 // ============================================================================
-// Activate — 清理旧缓存
+// Activate — 清理旧缓存 + 通知客户端刷新
 // ============================================================================
 self.addEventListener('activate', function(event) {
-  console.log('[SW] activate');
+  console.log('[SW] activate — v2');
   var validCaches = [CACHE_SHELL, CACHE_AUDIO];
   event.waitUntil(
     caches.keys().then(function(keys) {
@@ -69,7 +69,14 @@ self.addEventListener('activate', function(event) {
             return caches.delete(key);
           }
         })
-      );
+      ).then(function() {
+        // 通知所有客户端 SW 已更新，触发自动刷新
+        return self.clients.matchAll().then(function(clients) {
+          clients.forEach(function(client) {
+            client.postMessage({ type: 'SW_UPDATED' });
+          });
+        });
+      });
     })
   );
   self.clients.claim();
